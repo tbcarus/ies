@@ -24,35 +24,42 @@ if (length(I.angleA) == 5)
         disp('!!ВНИМАНИЕ!!! Исходная КСС представлена только в двух плоскостях. Для неосесимметричных кривых результат интерполяции будет некорректным!');
     end;
 end;
-step = (A-1)/ceil((A-1)/20);
-[X, Y] = meshgrid(0:(angleP(end))/(P-1):angleP(end), angleA(1):(angleA(end)-angleA(1))/(A-1):angleA(end)); % Первоначальная сетка в ies файле
-[Xi, Yi] = meshgrid(0:1:angleP(end), angleA(1):step:angleA(end));
-angleP = 0:1:angleP(end);
-Ii1 = interp2(X, Y, I.I, Xi, Yi, 'linear');
-maxIi = max(max(Ii1));
-for i=1:length(Ii1(:,1))
-    for j=1:length(Ii1(1,:))
-        if (Ii1(i,j) < 0.005*maxIi)
-            Ii1(i,j) = 0;
-        end;
-    end
-end;
+if(A~= 361 && P~=181) % условие для исключени дублирования интерполяции при повороте
+    step = 20;
+    [X, Y] = meshgrid(0:(angleP(end))/(P-1):angleP(end), angleA(1):(angleA(end)-angleA(1))/(A-1):angleA(end)); % Первоначальная сетка в ies файле
+    [Xi, Yi] = meshgrid(0:1:angleP(end), angleA(1):step:angleA(end));
+    angleP = 0:1:angleP(end);
+    Ii1 = interp2(X, Y, I.I, Xi, Yi, 'linear');
+    maxIi = max(max(Ii1));
+    for i=1:length(Ii1(:,1))
+        for j=1:length(Ii1(1,:))
+            if (Ii1(i,j) < 0.005*maxIi)
+                Ii1(i,j) = 0;
+            end;
+        end
+    end;
+    
+    X = Xi; Y = Yi;
+    step2 = 10;
+    [Xi, Yi] = meshgrid(0:1:angleP(end), angleA(1):step2:angleA(end));
+    angleP = 0:1:angleP(end);
+    Ii2 = interp2(X, Y, Ii1, Xi, Yi, 'cubic');
+    maxIi2 = max(max(Ii2));
+    for i=1:length(Ii2(:,1))
+        for j=1:length(Ii2(1,:))
+            if (Ii2(i,j) < 0.005*maxIi2)
+                Ii2(i,j) = 0;
+            end;
+        end
+    end;
+    X = Xi; Y = Yi;
+else % Если вход в интерполяцию уже после поворота (до поворота интерполяция по двум углам с шагом 1 градус),
+    % то переход сразу на финальную итерацию с заданными
+    % шагами интерполяции
+    [X, Y] = meshgrid(0:(angleP(end))/(P-1):angleP(end), angleA(1):(angleA(end)-angleA(1))/(A-1):angleA(end)); % Первоначальная сетка в ies файле
+    Ii2 = I.I;
+end
 
-X = Xi; Y = Yi;
-step2 = (A-1)/ceil((A-1)/10);
-[Xi, Yi] = meshgrid(0:1:angleP(end), angleA(1):step2:angleA(end));
-angleP = 0:1:angleP(end);
-Ii2 = interp2(X, Y, Ii1, Xi, Yi, 'cubic');
-maxIi2 = max(max(Ii2));
-for i=1:length(Ii2(:,1))
-    for j=1:length(Ii2(1,:))
-        if (Ii2(i,j) < 0.005*maxIi2)
-            Ii2(i,j) = 0;
-        end;
-    end
-end;
-
-X = Xi; Y = Yi;
 step3 = stepA;
 [Xi, Yi] = meshgrid(0:stepP:angleP(end), angleA(1):step3:angleA(end));
 angleP = 0:stepP:angleP(end);
