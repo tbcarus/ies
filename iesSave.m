@@ -1,5 +1,21 @@
 function f = iesSave(ies)
-filename = ['first' '.ies'];
+if (~exist (ies.name))
+    mkdir(ies.name);
+end;
+cd(ies.name);
+if (~isempty(ies.version))
+    if (~exist (ies.version))
+        mkdir(ies.version);
+    end;
+    cd(ies.version);
+end;
+
+
+lumName = [ies.name ' ' ies.version ' ' ies.optics ' ' num2str(ies.power) 'Вт ' ...
+    ies.cct ' ' ies.more1 ' ' ies.more2 ' ' ies.more3];
+lumName = strtrim(lumName);
+lumName = regexprep(lumName, '\s+', ' ');
+filename = [lumName ' ' ies.code '.ies'];
 Iresult = ies.I;
 Iresult = round(Iresult*1000)/1000;
 Fresult = ies.F;
@@ -10,11 +26,11 @@ fprintf(fid, ies.standart);
 fprintf(fid, ['[TEST]' ies.test]);
 fprintf(fid, ['[DATA] ' ies.data]);
 fprintf(fid, ['[MANUFAC]' ies.manufac]);
-fprintf(fid, ['[LUMCAT]' ies.lumcat]);
-fprintf(fid, ['[LUMINAIRE]' ies.luminaire]);
+fprintf(fid, ['[LUMCAT] ' ies.code '\r\n']);
+fprintf(fid, ['[LUMINAIRE] ' lumName '\r\n']);
 fprintf(fid, ['[LAMPCAT]' ies.lampcat]);
 fprintf(fid, ['[LAMP]' ies.lamp]);
-fprintf(fid, ['[OTHER]' ies.other]);
+fprintf(fid, ['[OTHER] ' ies.cct '\r\n']);
 fprintf(fid, ['[MORE]' ies.more]);
 fprintf(fid, ies.tilt);
 
@@ -74,7 +90,15 @@ for i=1:1:length(ies.angleA)
 end
 
 fclose(fid);
-disp(['Файл ' filename ', Фv=' num2str(iesFlux(ies.I)*ies.M) ' лм' ' .......записан']);
+if (~isempty(ies.version))
+    cd '..';
+end;
+cd '..';
+if (~isempty(ies.version))
+    disp(['Файл ' ies.name '\' ies.version '\' filename ', Фv=' num2str(iesFlux(ies.I)*ies.M) ' лм' ' .......записан']);
+else
+    disp(['Файл ' ies.name '\' filename ', Фv=' num2str(iesFlux(ies.I)*ies.M) ' лм' ' .......записан']);
+end;
 end
 
 

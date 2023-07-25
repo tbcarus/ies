@@ -1,31 +1,27 @@
-function f = xlsRead()
+function f = xlsRead(filename)
 
-fin = readtable('input-f.xlsx','ReadRowNames',true);
+fin = readtable(filename,'ReadRowNames',true);
 iesData = struct();
 for i = 1:height(fin)
     iesData(i).art = fin.Art(i);
     iesData(i).name = fin.Name(i);
-    iesData(i).version = fin.Version(i);
+    if (isnumeric(fin.Version(i))) iesData(i).version = num2cell(fin.Version(i)); else iesData(i).version = fin.Version(i); end;
     iesData(i).optics = fin.Optics(i);
     iesData(i).ies = fin.IES(i);
     iesData(i).cct = fin.CCT(i);
-    iesData(i).P = fin.P(i);
-    iesData(i).F = fin.F(i);
+    iesData(i).P = str2double(fin.P(i));
+    if (isnumeric(fin.F(i))) iesData(i).F = fin.F(i); else iesData(i).F = str2double(fin.F(i)); end;
     iesData(i).more1 = fin.More1(i);
     iesData(i).more2 = fin.More2(i);
-    if (isnan(iesData(i).more2))
-        iesData(i).more2 = '';
-    end;
+    if (isnan(cell2mat(iesData(i).more2))) iesData(i).more2 = ''; end;
     iesData(i).more3 = fin.More3(i);
-    if (isnan(iesData(i).more3))
-        iesData(i).more3 = '';
-    end;
-    iesData(i).H = fin.Height(i);
-    iesData(i).L = fin.Length(i);
-    iesData(i).W = fin.Width(i);
-    iesData(i).dP = fin.dP(i);
-    iesData(i).dA = fin.dA(i);
-    iesData(i).rot = fin.ROT(i);
+    if (isnan(cell2mat(iesData(i).more3))) iesData(i).more3 = ''; end;
+    if (isnumeric(fin.Height(i))) iesData(i).H = fin.Height(i); else iesData(i).H = str2double(fin.Height(i)); end;
+    if (isnumeric(fin.Length(i))) iesData(i).L = fin.Length(i); else iesData(i).L = str2double(fin.Length(i)); end;
+    if (isnumeric(fin.Width(i))) iesData(i).W = fin.Width(i); else iesData(i).W = str2double(fin.Width(i)); end;
+    if (isnumeric(fin.dP(i))) iesData(i).dP = fin.dP(i); else iesData(i).dP = str2double(fin.dP(i)); end;
+    if (isnumeric(fin.dA(i))) iesData(i).dA = fin.dA(i); else iesData(i).dA = str2double(fin.dA(i)); end;
+    if (isnumeric(fin.ROT(i))) iesData(i).rot = fin.ROT(i); else iesData(i).rot = str2double(fin.ROT(i)); end;
 end
 
 f = iesData;
