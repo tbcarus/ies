@@ -15,6 +15,7 @@ for i = 1:height(fin)
     iesData(i).more2 = fin.More2(i);
     if (isnan(cell2mat(iesData(i).more2))) iesData(i).more2 = ''; end;
     iesData(i).more3 = fin.More3(i);
+    iesData(i).more4 = fin.More4(i);
     if (isnan(cell2mat(iesData(i).more3))) iesData(i).more3 = ''; end;
     if (isnumeric(fin.Height(i))) iesData(i).H = fin.Height(i); else iesData(i).H = str2double(fin.Height(i)); end;
     if (isnumeric(fin.Length(i))) iesData(i).L = fin.Length(i); else iesData(i).L = str2double(fin.Length(i)); end;
