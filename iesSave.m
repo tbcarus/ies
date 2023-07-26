@@ -12,7 +12,9 @@ end;
 
 
 lumName = [ies.name ' ' ies.version ' ' ies.optics ' ' num2str(ies.power) 'Âò ' ...
-    ies.cct ' ' ies.more1 ' ' ies.more2 ' ' ies.more3];
+    ies.cct ...
+%     ' ' ies.more1 ' ' ies.more2 ' ' ies.more3...
+    ];
 lumName = strtrim(lumName);
 lumName = regexprep(lumName, '\s+', ' ');
 filename = [lumName ' ' ies.code '.ies'];
