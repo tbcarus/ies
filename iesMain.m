@@ -12,6 +12,7 @@ clear all
 % 7. Создание/переход в нужную папку для сохранения файла
 % 8. Сохранение файла
 
+inputFileName = 'input.xlsx';
 iesResult = struct('standart','IESNA:LM-63-1995\r\n',...
     'test',' www.martinirus.ru\r\n',...
     'data',[datestr(datetime('now'),'mm.dd.yyyy'), '\r\n'],...
@@ -21,8 +22,8 @@ iesResult = struct('standart','IESNA:LM-63-1995\r\n',...
     'balastcat','\r\n','other',' Light color\r\n',...
     'more','\r\n','tilt','TILT=NONE\r\n');
 
-fouts = xlsRead('input.xlsx');
-len = 1;
+fouts = xlsRead(inputFileName);
+len = 220;
 len = length(fouts);
 for i = 1:len
     fout = fouts(i);
@@ -52,17 +53,21 @@ for i = 1:len
     iesResult.more1 = cell2mat(fout.more1);
     iesResult.more2 = cell2mat(fout.more2);
     iesResult.more3 = cell2mat(fout.more3);
+    iesResult.more4 = cell2mat(fout.more4);
     if (strcmp(iesResult.more1, 'DALI'))
         iesResult.code = [iesResult.code 'DD'];
-    end;
-    if (strcmp(iesResult.more1, 'сквоз. провод'))
-        iesResult.code = [iesResult.code 'M'];
     end;
     if (strcmp(iesResult.more3, 'RGBW'))
         iesResult.code = [iesResult.code 'RGBW'];
     end;
+    if((strcmp(iesResult.more1, 'DMX')||strcmp(iesResult.more1, 'DMX-RDM')) && ~strcmp(iesResult.more3, 'RGBW'))
+        iesResult.code = [iesResult.code 'DMX'];
+    end;
     if (strcmp(iesResult.more2, '5 DEG'))
         iesResult.code = [iesResult.code 'U'];
+    end;
+    if (strcmp(iesResult.more4, 'сквоз. провод'))
+        iesResult.code = [iesResult.code 'M'];
     end;
       
     if (isnan(fout.H))
