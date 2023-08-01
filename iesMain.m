@@ -121,15 +121,16 @@ for i = 1:len
         continue;
     end;
     
+    ies2 = iesInterpolate(ies, 1, 1); % сначала интерпол€ци€ с малым шагом
+    %сделано так дл€ корректного достраивани€  ——, которые заданы не в
+    %азимутильных углах 0-360 градусов. Ёто место дл€ оптимизации, но по
+    %сравнению с сохранением это занимает малую часть времени
     if (rot)
-        ies2 = iesInterpolate(ies, 1, 1); % сначала интерпол€ци€ с малым шагом
         ies2 = iesRotor(ies2, rot); % поворот
-        ies2 = iesInterpolate(ies2, iesResult.dA, iesResult.dP); % интерпол€ци€ с заданным шагом, 
+    end;
+    ies2 = iesInterpolate(ies2, iesResult.dA, iesResult.dP); % интерпол€ци€ с заданным шагом, 
         % если интерполироватьс€ сразу с заданным шагом, а он довольно грубый, а поворот на
         % произвольный угол, то получитс€ некорректный результат
-    else
-        ies2 = iesInterpolate(ies, iesResult.dA, iesResult.dP);
-    end;
     
     % iesView(ies, ies2); % отображение  ——
     ies3 = iesNormalize(ies2, 1000); % приведение сил света к 1000 лм
