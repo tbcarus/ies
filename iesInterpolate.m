@@ -26,8 +26,8 @@ if (length(I.angleA) == 5) % вывод предупреждения в консоль
 %         disp('!!ВНИМАНИЕ!!! Исходная КСС представлена только в двух плоскостях. Для неосесимметричных кривых результат интерполяции будет некорректным!');
     end;
 end;
-if(A~= 361 && P~=181) % условие для исключени дублирования интерполяции при повороте Перед поворотом КСС уже проиниерполированы с шагом 1 градус
-    step = 20;
+if(A~= 361 || P~=181) % условие для исключени дублирования интерполяции при повороте Перед поворотом КСС уже проиниерполированы с шагом 1 градус
+    step = 10;
     [X, Y] = meshgrid(0:(angleP(end))/(P-1):angleP(end), angleA(1):(angleA(end)-angleA(1))/(A-1):angleA(end)); % Первоначальная сетка в ies файле
     [Xi, Yi] = meshgrid(0:1:angleP(end), angleA(1):step:angleA(end));
     angleP = 0:1:angleP(end);
@@ -42,7 +42,7 @@ if(A~= 361 && P~=181) % условие для исключени дублирования интерполяции при пово
 %     end;
     
     X = Xi; Y = Yi;
-    step2 = 10;
+    step2 = 5;
     [Xi, Yi] = meshgrid(0:1:angleP(end), angleA(1):step2:angleA(end));
     angleP = 0:1:angleP(end);
     Ii2 = interp2(X, Y, Ii1, Xi, Yi, 'cubic');
@@ -65,6 +65,7 @@ end
 step3 = stepA;
 [Xi, Yi] = meshgrid(0:stepP:angleP(end), angleA(1):step3:angleA(end));
 angleP = 0:stepP:angleP(end);
+angleA = 0:stepA:angleA(end);
 Ii3 = interp2(X, Y, Ii2, Xi, Yi, 'linear');
 maxIi3 = max(max(Ii3));
 for i=1:length(Ii3(:,1))
@@ -79,11 +80,11 @@ Ii = Ii3;
 %% дополнение полярных углов до 180 градусов
 if (angleP(end) < 180) % если информация отсутствет, то силы света в этих направлениях равны 0
     while (angleP(end) ~= 180)
-        angleP(end+1) = angleP(end) + 1;
+        angleP(end+1) = angleP(end) + stepP;
         Ii(:, end+1) = 0;
     end
     [A, P] = size(Ii);
-    angleA = angleA(1):1:angleA(end);
+    angleA = angleA(1):stepA:angleA(end);
 end
 
 %% Дополнение азимутальных углов до 360 градусов
