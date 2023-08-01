@@ -1,15 +1,17 @@
+% функция считывания данных из эксель файла
+
 function f = xlsRead(filename)
 
-fin = readtable(filename,'ReadRowNames',true);
-iesData = struct();
+fin = readtable(filename,'ReadRowNames',true); % считанный файл
+iesData = struct(); % структура выходных данных
 for i = 1:height(fin)
-    iesData(i).art = fin.Art(i);
-    iesData(i).name = fin.Name(i);
-    %     if (isnumeric(fin.Version(i)))
-    %         iesData(i).version = num2cell(fin.Version(i));
-    %     else
-    %         iesData(i).version = fin.Version(i);
-    %     end;
+    if (iscell(fin.Art(i))) iesData(i).art = fin.Art(i); else iesData(i).art = {fin.Art(i)}; end; % артикул
+    if (isnan(cell2mat(iesData(i).art))) iesData(i).art = {''}; end;
+    iesData(i).name = fin.Name(i); % название
+    
+    % все поля, кроме гарантированно цифровых переводятся в формат cell для удобства,
+    % так как, если в столбце присутсвуют не только цифры, то стичан будет
+    % cell, если только цифры, то будет numeric.
     if (iscell(fin.Version(i))) iesData(i).version = fin.Version(i); else iesData(i).version = {fin.Version(i)}; end;
     if (isnan(cell2mat(iesData(i).version))) iesData(i).version = {''}; end;
     
@@ -18,16 +20,12 @@ for i = 1:height(fin)
     iesData(i).cct = fin.CCT(i);
     iesData(i).P = str2double(fin.P(i));
     if (isnumeric(fin.F(i))) iesData(i).F = fin.F(i); else iesData(i).F = str2double(fin.F(i)); end;
-    %     iesData(i).more1 = {fin.More1(i)};
     if (iscell(fin.More1(i))) iesData(i).more1 = fin.More1(i); else iesData(i).more1 = {fin.More1(i)}; end;
     if (isnan(cell2mat(iesData(i).more1))) iesData(i).more1 = {''}; end;
-    %     iesData(i).more2 = {fin.More2(i)};
     if (iscell(fin.More2(i))) iesData(i).more2 = fin.More2(i); else iesData(i).more2 = {fin.More2(i)}; end;
     if (isnan(cell2mat(iesData(i).more2))) iesData(i).more2 = {''}; end;
-    %     iesData(i).more3 = {fin.More3(i)};
     if (iscell(fin.More3(i))) iesData(i).more3 = fin.More3(i); else iesData(i).more3 = {fin.More3(i)}; end;
     if (isnan(cell2mat(iesData(i).more3))) iesData(i).more3 = {''}; end;
-    %     iesData(i).more4 = {fin.More4(i)};
     if (iscell(fin.More4(i))) iesData(i).more4 = fin.More4(i); else iesData(i).more4 = {fin.More4(i)}; end;
     if (isnan(cell2mat(iesData(i).more4))) iesData(i).more4 = {''}; end;
     if (isnumeric(fin.Height(i))) iesData(i).H = fin.Height(i); else iesData(i).H = str2double(fin.Height(i)); end;

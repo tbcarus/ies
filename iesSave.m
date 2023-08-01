@@ -1,11 +1,13 @@
+% функция сохранения ies файла
+
 function f = iesSave(ies)
 if (~exist (ies.name))
-    mkdir(ies.name);
+    mkdir(ies.name); % создание каталога, если не существет
 end;
 cd(ies.name);
 if (~isempty(ies.version))
     if (~exist (ies.version))
-        mkdir(ies.version);
+        mkdir(ies.version); % создание вложенного каталога версии, если не существует и переход в него
     end;
     cd(ies.version);
 end;
@@ -14,13 +16,12 @@ end;
 lumName = [ies.name ' ' ies.version ' ' ies.optics ' ' num2str(ies.power) 'Вт ' ...
     ies.cct ...
 %     ' ' ies.more1 ' ' ies.more2 ' ' ies.more3...
-    ];
-lumName = strtrim(lumName);
-lumName = regexprep(lumName, '\s+', ' ');
-filename = [lumName ' ' ies.code '.ies'];
-Iresult = ies.I;
-Iresult = round(Iresult*1000)/1000;
-Fresult = ies.F;
+    ]; % формирование названия светильника
+lumName = strtrim(lumName); % убрать пробелы по краям
+lumName = regexprep(lumName, '\s+', ' '); % убрать лишние пробелы между словами
+filename = [strtrim([lumName ' ' ies.code]) '.ies']; % формирование имени файла
+Iresult = ies.I; % для удобства
+Iresult = round(Iresult*1000)/1000; % убрать лишие цифры в десятичной дроби
 
 %вывод файла
 fid = fopen(filename, 'w'); 
@@ -102,33 +103,3 @@ else
     disp(['Файл ' ies.name '\' filename ', Фv=' num2str(iesFlux(ies.I)*ies.M) ' лм' ' .......записан']);
 end;
 end
-
-
-% Iresult = round(Iresult*1000)/1000;
-% Iresult(:,1) = Iresult(1,1);
-% 
-% 
-% 
-% 
-% %D_new{1, 1} = 'Созданный файл';
-% %D_new{1,2} = 'Поляр. углы /шаг'; D_new{1,3} = 'Азим. углы /шаг'; D_new{1,4} = 'Поток в файле'; D_new{1,5} = 'Поток по КСС'; D_new{1,6} = 'КПД'; D_new{1,7} = 'Множитель';
-% %D_new{2, 1} = filename_NEW; 
-% %D_new{2, 2} = strcat(num2str(angleP(1)), '-', num2str(angleP(end)-90), ' /', num2str(stepP));
-% %D_new{2, 3} = strcat(num2str(angleA(1)), '-', num2str(angleA(end)), ' /', num2str(stepA));
-% %D_new{2, 4} = num2str(round(Fresult*1000)/1000);
-% %D_new{2, 5} = num2str(Fresult);
-% %D_new{2, 6} = num2str(Fresult/(round(Fresult*1000)/1000));
-% %D_new{2, 7} = num2str(round(Fresult)/1000);
-% %disp(D_new)
-% 
-% file_count = file_count+1;
-% %disp(strcat(num2str(file_count), '/', num2str(file_all)));
-% disp([filename_NEW, ' ', num2str(round(10*P_LEDS/Power_suply_eff)/10) ' - '...
-%     num2str(round((P_LEDS/Power_suply_eff)/5)*5) '   ' num2str(FvLED*N(1)) '  ' num2str(FvLED*N(1)/(round((P_LEDS/Power_suply_eff)/5)*5))])
-% 
-% end
-% cd('..');%выход из каталога
-% end
-% if length(N_file)==0
-%     disp('ies-файлы в дирректории отсутсвуют');
-% end
