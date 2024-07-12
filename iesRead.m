@@ -26,6 +26,7 @@ M = str(3); %множитель
 P = str(4); %количество полярных углов
 A = str(5); %количество азимутальных углов
 Ireaded.F = str(2); Ireaded.m = str(3); Ireaded.P = str(4); Ireaded.A = str(5);
+Ireaded.width = str(8); Ireaded.length = str(9); Ireaded.height = str(10);
 str = strread(file{i,1}); %считываем строку с мощностью светильника
 power = str(3); %мощность светильника
 Ireaded.power = str(3);
