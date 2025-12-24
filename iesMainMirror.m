@@ -1,15 +1,15 @@
 clc
 close all
 clear all
-% Поворот ies файла вокруг вертикальной оси
+% Отражение ies файла относительно плоскости 0-180 или 90-270
 % Общая логика работы программы:
 % 1. Программа обрабатывает по одному файлу, который указывается вручную
 % (операция не частая, не вижу смысла делать массовое чтение файлов)
 % 2. Считывание КСС. Данные из шапки ies файла сейчас теряются.
-% 3. Переворот КСС относительно горизонтальной плоскости
-% 4. Сохранение файла с суффиксом "-flipped"
+% 3. Отражение КСС относительно выбранной плоскости 0-180 или 90-270
+% 4. Сохранение файла с суффиксом "-mirrored"
 
-inputFileName = 'Osioline RGBW Spot.ies'; % имя входного ies файла
+inputFileName = 'Bellino 100 Вт.ies'; % имя входного ies файла
 iesResult = struct('standart','IESNA:LM-63-1995\r\n',...
     'test',' www.martinirus.ru\r\n',...
     'data',[datestr(datetime('now'),'mm.dd.yyyy'), '\r\n'],...
@@ -21,7 +21,7 @@ iesResult = struct('standart','IESNA:LM-63-1995\r\n',...
 
 ies = iesRead(inputFileName); % Чтение файла
 % заполнение остальных полей структуры данных
-ies1 = iesFlip(ies);
+ies1 = iesMirror(ies, Planes.C0180);
 iesResult.Nlamp = 1;
 iesResult.F = ies1.F;
 iesResult.M = ies1.m;

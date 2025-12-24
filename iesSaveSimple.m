@@ -4,7 +4,7 @@ function f = iesSaveSimple(ies)
 lumName = [ies.name]; % формирование названия светильника
 lumName = strtrim(lumName); % убрать пробелы по краям
 lumName = regexprep(lumName, '\s+', ' '); % убрать лишние пробелы между словами
-filename = [strtrim([ies.name '-flipped']) '.ies']; % формирование имени файла
+filename = sprintf('%s%s.ies', strtrim(ies.name), ies.nameSuffix); % формирование имени файла
 Iresult = ies.I; % для удобства
 Iresult = round(Iresult*1000)/1000; % убрать лишие цифры в десятичной дроби
 
@@ -78,5 +78,5 @@ for i=1:1:length(ies.angleA)
 end
 
 fclose(fid);
-    disp(['Файл ' ies.name ' .......записан']);
+    disp(['Файл ' filename ' .......записан']);
 end
