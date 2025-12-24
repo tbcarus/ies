@@ -1,4 +1,3 @@
-clc
 close all
 clear all
 % Общая логика работы программы:
@@ -17,7 +16,7 @@ clear all
 % в зависимости от конфигурации входного xlsx файла, но борьба с этим
 % продолжается.
 
-inputFileName = 'input-osioLine.xlsx'; % имя входного файла с данными
+inputFileName = 'input-test.xlsx'; % имя входного файла с данными
 iesResult = struct('standart','IESNA:LM-63-1995\r\n',...
     'test',' www.martinirus.ru\r\n',...
     'data',[datestr(datetime('now'),'mm.dd.yyyy'), '\r\n'],...

@@ -8,7 +8,7 @@ clear all
 % 1. название ies файла.
 % 2. требуемый световой поток ies файла.
 
-inputFileName = '222 higer 4710-910 lens Ledil C17634.IES'; % имя входного ies файла
+inputFileName = '222 higer 4710-910 lens Ledil C17634 60deg.IES'; % имя входного ies файла
 resultF = 2900;
 angle = 85; % угол, под которым ищем максимальную силу света
 iesResult = struct('standart','IESNA:LM-63-1995\r\n',...
