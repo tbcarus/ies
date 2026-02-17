@@ -110,7 +110,7 @@ if ((angleA(1) == 0) && (angleA(end) == 360)) %если заданы азимутальные углы 0-3
     %только добавляем все азимутальные углы 0-360 градусов
     angleA = [0:stepA:360];
 end
-Iinterpolated = struct();
+Iinterpolated = I;
 Iinterpolated.A = length(angleA);
 Iinterpolated.P = length(angleP);
 Iinterpolated.angleA = angleA;
