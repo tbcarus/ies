@@ -1,6 +1,6 @@
-function [Iplanes, thetaPlotDeg, hFig, hAx] = plotIesPolarPlanes(iesResult, planesDeg)
-% Строит полные сечения фотометрического тела в полярной системе координат
-% для заданных азимутальных плоскостей.
+function [Icuts, thetaPlotDeg, hFig, hAx] = plotIesPolarPlanes(iesResult, gammaDeg, normalize)
+% plotIesPolarGammaCutsNorm
+% Строит сечения фотометрического тела для заданных полярных углов gamma.
 %
 % Вход:
 %   iesResult  - структура с полями:
@@ -10,21 +10,26 @@ function [Iplanes, thetaPlotDeg, hFig, hAx] = plotIesPolarPlanes(iesResult, plan
 %                         размер: [numel(angleA) x numel(angleP)]
 %                F      : световой поток, лм
 %
-%   planesDeg  - вектор азимутальных плоскостей в градусах,
-%                например [0 10 45 90]
+%   gammaDeg   - вектор полярных углов, градусы,
+%                например [30 60 90]
 %
 % Выход:
-%   Iplanes      - матрица полных сечений в кд/клм
-%   thetaPlotDeg - вектор углов (0...360)
-%   hFig         - handle figure
-%   hAx          - handle polaraxes
+%   Icuts       - матрица сечений в кд/клм
+%   thetaPlotDeg - вектор азимутальных углов для построения
+%   hFig        - handle figure
+%   hAx         - handle polaraxes
 %
 % Пример вызова:
-%   plotIesPolarPlanesFullNorm(iesResult, [0 10 45 90]);
+%   plotIesPolarPlanes(iesResult, [30 60 90], true); кд/клм
+%   plotIesPolarPlanes(iesResult, [30 60 90], false); кд
 
     %% Проверка входов
     if nargin < 2
-        error('Нужно передать два аргумента: iesResult и planesDeg.');
+        error('Нужно передать минимум два аргумента: iesResult и planesDeg, [normalize].');
+    end
+
+    if nargin < 3
+        normalize = false;
     end
 
     requiredFields = {'angleP', 'angleA', 'I', 'F'};
@@ -35,73 +40,100 @@ function [Iplanes, thetaPlotDeg, hFig, hAx] = plotIesPolarPlanes(iesResult, plan
     end
 
     angleP = iesResult.angleP(:).';
-    angleA = iesResult.angleA(:);
+    angleA = iesResult.angleA(:).';
     I = iesResult.I;
     F = iesResult.F;
 
-    planesDeg = planesDeg(:);
+    gammaDeg = gammaDeg(:).';
+
+    %% Проверка размеров
+    [nA, nP] = size(I);
+
+    if nA ~= numel(angleA)
+        error('Число строк в iesResult.I должно совпадать с длиной iesResult.angleA.');
+    end
+
+    if nP ~= numel(angleP)
+        error('Число столбцов в iesResult.I должно совпадать с длиной iesResult.angleP.');
+    end
+
+    if ~isscalar(F) || ~isnumeric(F) || ~isfinite(F) || F <= 0
+        error('iesResult.F должен быть положительным конечным скаляром в люменах.');
+    end
+
+    if isempty(gammaDeg)
+        error('Список полярных углов gammaDeg пуст.');
+    end
 
     %% Нормировка к кд/клм
-    Inorm = I / (F / 1000);
+    if normalize
+        Inorm = I / (F / 1000);
+        unitLabel = 'кд/клм';
+    else
+        Inorm = I;
+        unitLabel = 'кд';
+    end
 
-    %% Нормализация углов
-    planesDeg = mod(planesDeg, 360);
-
-    %% Проверка наличия плоскостей
+    %% Проверка наличия заданных полярных углов
     tol = 1e-9;
-    for k = 1:numel(planesDeg)
-        if ~any(abs(angleA - planesDeg(k)) < tol)
-            error('Плоскость %.6g° отсутствует в iesResult.angleA.', planesDeg(k));
-        end
-        if ~any(abs(angleA - mod(planesDeg(k)+180,360)) < tol)
-            error('Противоположная плоскость отсутствует.');
+
+    for k = 1:numel(gammaDeg)
+        if ~any(abs(angleP - gammaDeg(k)) < tol)
+            error('Полярный угол %.6g° отсутствует в iesResult.angleP.', gammaDeg(k));
         end
     end
 
-    %% Формирование полной угловой оси
-    thetaPlotDeg = [angleP, 180 + angleP(2:end)];
-    Iplanes = zeros(numel(planesDeg), numel(thetaPlotDeg));
+    %% Подготовка азимутальной оси
+    % Если 360° отсутствует, но есть 0°, добавляем 360° как копию 0°,
+    % чтобы кривая была замкнутой.
+    thetaPlotDeg = angleA;
+    Iplot = Inorm;
+
+    has0 = any(abs(angleA - 0) < tol);
+    has360 = any(abs(angleA - 360) < tol);
+
+    if has0 && ~has360
+        idx0 = find(abs(angleA - 0) < tol, 1, 'first');
+        thetaPlotDeg = [thetaPlotDeg, 360];
+        Iplot = [Iplot; Inorm(idx0, :)];
+    end
 
     %% Формирование сечений
-    for k = 1:numel(planesDeg)
-        c1 = planesDeg(k);
-        c2 = mod(c1 + 180, 360);
+    Icuts = zeros(numel(gammaDeg), numel(thetaPlotDeg));
 
-        idx1 = find(abs(angleA - c1) < tol, 1);
-        idx2 = find(abs(angleA - c2) < tol, 1);
+    for k = 1:numel(gammaDeg)
+        idxP = find(abs(angleP - gammaDeg(k)) < tol, 1, 'first');
 
-        I1 = Inorm(idx1, :);
-        I2 = Inorm(idx2, :);
-
-        Iplanes(k, :) = [I1, fliplr(I2(1:end-1))];
+        % Для фиксированного gamma берём все значения по азимуту C
+        Icuts(k, :) = Iplot(:, idxP).';
     end
 
     %% Построение
-    hFig = figure('Color','w');
+    hFig = figure('Color', 'w');
     hAx = polaraxes(hFig);
-    hold(hAx,'on');
+    hold(hAx, 'on');
 
     thetaRad = deg2rad(thetaPlotDeg);
 
-    for k = 1:numel(planesDeg)
-        polarplot(hAx, thetaRad, Iplanes(k,:), ...
-            'LineWidth',1.5, ...
-            'DisplayName',sprintf('C%g',planesDeg(k)));
+    for k = 1:numel(gammaDeg)
+        polarplot(hAx, thetaRad, Icuts(k, :), ...
+            'LineWidth', 1.5, ...
+            'DisplayName', sprintf('\\gamma%g', gammaDeg(k)));
     end
 
     %% Оформление
-    hAx.ThetaZeroLocation = 'bottom';
+    hAx.ThetaZeroLocation = 'top';
     hAx.ThetaDir = 'clockwise';
     hAx.ThetaLim = [0 360];
 
-    hAx.ThetaTick = [0 30 60 90 120 150 180 210 240 270 300 330];
-    hAx.ThetaTickLabel = {'0','30','60','90','120','150','±180', ...
-                          '-150','-120','-90','-60','-30'};
+    hAx.ThetaTick = 0:30:330;
+    hAx.ThetaTickLabel = {'0','30','60','90','120','150','180', ...
+                          '210','240','270','300','330'};
 
-    grid(hAx,'on');
+    grid(hAx, 'on');
     hAx.GridLineStyle = '--';
     hAx.MinorGridLineStyle = '--';
 
-    title(hAx,'Сечение фотометрического тела, кд/клм');
-    legend(hAx,'show','Location','best');
+    title(hAx, ['Сечение фотометрического тела по полярным углам, ', unitLabel]);
+    legend(hAx, 'show', 'Location', 'best');
 end
